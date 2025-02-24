@@ -1,0 +1,39 @@
+name: Robot Framework Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Browser Drivers (Chrome)
+        run: |
+          sudo apt update
+          sudo apt install -y chromium-chromedriver
+          export PATH=$PATH:/usr/lib/chromium-browser/
+
+      - name: Run Robot Framework Tests
+        run: |
+          robot -d reports tests/
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: Robot Framework Reports
+          path: reports/
